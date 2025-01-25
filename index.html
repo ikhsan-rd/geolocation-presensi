@@ -4,33 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Location Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #error-message {
+      color: red;
+      display: none;
+    }
+    #latitude, #longitude {
+      margin: 10px 0;
+      padding: 5px;
+      width: 80%;
+      max-width: 300px;
+      display: block;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
-  <div id="location-section">
-    <table>
-      <tr>
-        <td>Latitude:</td>
-        <td><input type="text" id="latitude" placeholder="Latitude" readonly></td>
-      </tr>
-      <tr>
-        <td>Longitude:</td>
-        <td><input type="text" id="longitude" placeholder="Longitude" readonly></td>
-      </tr>
-    </table>
-    <button type="button" id="get-location" onclick="triggerLocation()">Dapatkan Lokasi</button>
-    <p id="error-message" style="color: red; display: none;"></p>
-  </div>
+  <h1>Pelacakan Lokasi</h1>
+  <p>Tekan tombol di bawah untuk melacak lokasi Anda.</p>
+  <input type="text" id="latitude" placeholder="Latitude" readonly>
+  <input type="text" id="longitude" placeholder="Longitude" readonly>
+  <button id="get-location" onclick="triggerLocation()">Dapatkan Lokasi</button>
+  <p id="error-message"></p>
+
+  <!-- Hidden input for passing data to Jotform -->
+  <input type="hidden" id="is-location-set" value="false">
+
   <script>
-    // Fungsi untuk melacak lokasi
     function triggerLocation() {
       const latitudeField = document.getElementById("latitude");
       const longitudeField = document.getElementById("longitude");
       const errorMessage = document.getElementById("error-message");
+      const hiddenField = document.getElementById("is-location-set");
 
-      // Reset field sebelumnya
+      // Reset sebelumnya
       latitudeField.value = "";
       longitudeField.value = "";
       errorMessage.style.display = "none";
+      hiddenField.value = "false";
 
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -38,13 +64,14 @@
             // Jika lokasi berhasil didapatkan
             latitudeField.value = position.coords.latitude;
             longitudeField.value = position.coords.longitude;
+            hiddenField.value = "true"; // Tandai lokasi sudah diatur
           },
           (error) => {
             // Jika pengguna menolak akses lokasi
             errorMessage.style.display = "block";
             if (error.code === error.PERMISSION_DENIED) {
               errorMessage.textContent =
-                "Izin lokasi ditolak. Silakan aktifkan akses lokasi di browser Anda.";
+                "Izin lokasi ditolak. Harap izinkan akses lokasi untuk melanjutkan.";
             } else {
               errorMessage.textContent =
                 "Tidak dapat melacak lokasi. Coba lagi nanti.";
