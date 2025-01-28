@@ -70,8 +70,9 @@
             // Jika pengguna menolak akses lokasi
             errorMessage.style.display = "block";
             if (error.code === error.PERMISSION_DENIED) {
-              errorMessage.textContent =
-                "Izin lokasi ditolak. Harap izinkan akses lokasi untuk melanjutkan.";
+              errorMessage.textContent = `
+                Izin lokasi ditolak. Harap periksa pengaturan lokasi di browser Anda, lalu coba lagi.
+              `;
             } else {
               errorMessage.textContent =
                 "Tidak dapat melacak lokasi. Coba lagi nanti.";
