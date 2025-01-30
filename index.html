@@ -37,7 +37,7 @@
       cursor: not-allowed;
     }
     .radio-group {
-      display: flex;
+      display: block
       justify-content: space-between;
     }
     .radio-group label {
@@ -62,14 +62,14 @@
       <label><input type="radio" name="presensi" value="Absen"> Absen</label>
     </div>
 
+    <label for="tanggal">Tanggal:</label>
+    <input type="text" id="tanggal" name="tanggal" readonly>
+
     <label for="latitude">Latitude:</label>
     <input type="text" id="latitude" name="latitude" readonly>
 
     <label for="longitude">Longitude:</label>
     <input type="text" id="longitude" name="longitude" readonly>
-
-    <label for="tanggal">Tanggal:</label>
-    <input type="text" id="tanggal" name="tanggal" readonly>
 
     <button type="button" id="getLocationButton">Dapatkan Lokasi</button>
     <button type="submit">Submit</button>
