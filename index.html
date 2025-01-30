@@ -3,89 +3,125 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Location Tracker</title>
+  <title>Form Absensi</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
       margin: 20px;
     }
-    #error-message {
-      color: red;
-      display: none;
+    form {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
     }
-    #latitude, #longitude {
-      margin: 10px 0;
-      padding: 5px;
-      width: 80%;
-      max-width: 300px;
+    label {
       display: block;
+      margin: 10px 0 5px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
     }
     button {
       background-color: #4CAF50;
       color: white;
-      padding: 10px 20px;
-      border: none;
       cursor: pointer;
     }
     button:disabled {
       background-color: #aaa;
       cursor: not-allowed;
     }
+    .radio-group {
+      display: flex;
+      justify-content: space-between;
+    }
+    .radio-group label {
+      flex: 1;
+    }
   </style>
 </head>
 <body>
-  <h1>Pelacakan Lokasi</h1>
-  <p>Tekan tombol di bawah untuk melacak lokasi Anda.</p>
-  <input type="text" id="latitude" placeholder="Latitude" readonly>
-  <input type="text" id="longitude" placeholder="Longitude" readonly>
-  <button id="get-location" onclick="triggerLocation()">Dapatkan Lokasi</button>
-  <p id="error-message"></p>
+  <h1>Form Absensi</h1>
+  <form id="absenForm">
+    <label for="nama">Nama:</label>
+    <input type="text" id="nama" name="nama" required>
 
-  <!-- Hidden input for passing data to Jotform -->
-  <input type="hidden" id="is-location-set" value="false">
+    <label for="departemen">Departemen:</label>
+    <input type="text" id="departemen" name="departemen" required>
+
+    <label>Presensi:</label>
+    <div class="radio-group">
+      <label><input type="radio" name="presensi" value="Hadir" required> Hadir</label>
+      <label><input type="radio" name="presensi" value="Izin"> Izin</label>
+      <label><input type="radio" name="presensi" value="Cuti"> Cuti</label>
+      <label><input type="radio" name="presensi" value="Absen"> Absen</label>
+    </div>
+
+    <label for="latitude">Latitude:</label>
+    <input type="text" id="latitude" name="latitude" readonly>
+
+    <label for="longitude">Longitude:</label>
+    <input type="text" id="longitude" name="longitude" readonly>
+
+    <label for="tanggal">Tanggal:</label>
+    <input type="text" id="tanggal" name="tanggal" readonly>
+
+    <button type="button" id="getLocationButton">Dapatkan Lokasi</button>
+    <button type="submit">Submit</button>
+  </form>
 
   <script>
-    function triggerLocation() {
-      const latitudeField = document.getElementById("latitude");
-      const longitudeField = document.getElementById("longitude");
-      const errorMessage = document.getElementById("error-message");
-      const hiddenField = document.getElementById("is-location-set");
+    // Set tanggal otomatis
+    document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
 
-      // Reset sebelumnya
-      latitudeField.value = "";
-      longitudeField.value = "";
-      errorMessage.style.display = "none";
-      hiddenField.value = "false";
+    // Get IP address
+    let userIP = '';
+    fetch('https://api.ipify.org?format=json')
+      .then(response => response.json())
+      .then(data => {
+        userIP = data.ip;
+      });
 
+    // Get location
+    document.getElementById('getLocationButton').addEventListener('click', function() {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            // Jika lokasi berhasil didapatkan
-            latitudeField.value = position.coords.latitude;
-            longitudeField.value = position.coords.longitude;
-            hiddenField.value = "true"; // Tandai lokasi sudah diatur
-          },
-          (error) => {
-            // Jika pengguna menolak akses lokasi
-            errorMessage.style.display = "block";
-            if (error.code === error.PERMISSION_DENIED) {
-              errorMessage.textContent = `
-                Izin lokasi ditolak. Harap periksa pengaturan lokasi di browser Anda, lalu coba lagi.
-              `;
-            } else {
-              errorMessage.textContent =
-                "Tidak dapat melacak lokasi. Coba lagi nanti.";
-            }
-          }
-        );
+        navigator.geolocation.getCurrentPosition(function(position) {
+          document.getElementById('latitude').value = position.coords.latitude;
+          document.getElementById('longitude').value = position.coords.longitude;
+        }, function() {
+          alert('Gagal mendapatkan lokasi.');
+        });
       } else {
-        // Jika browser tidak mendukung geolocation
-        errorMessage.style.display = "block";
-        errorMessage.textContent =
-          "Browser Anda tidak mendukung pelacakan lokasi.";
+        alert('Browser Anda tidak mendukung geolokasi.');
       }
-    }
+    });
+
+    // Submit form
+    document.getElementById('absenForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      formData.append('ip', userIP);
+
+      fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        this.reset();
+      })
+      .catch(error => {
+        alert('Gagal mengirim data.');
+        console.error(error);
+      });
+    });
   </script>
 </body>
 </html>
