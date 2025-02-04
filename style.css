@@ -62,11 +62,30 @@ select {
 .tanggal-jam-group {
   display: flex;
   justify-content: space-between;
+  width: 100%;
+  margin-bottom: 25px;
 }
 
-.tanggal-group,
+.tanggal-jam-group div {
+  width: 100%;
+}
+
+.tanggal-jam-group div label {
+  width: fit-content;
+}
+
+.tanggal-jam-group div input {
+  width: 92%;
+  margin: 0;
+}
+
+.tanggal-group{
+  width: auto;
+  margin-right: 2.5%;
+}
+
 .jam-group {
-  width: 47.5%;
+  width: auto;
 }
 
 .radio-group {
@@ -86,9 +105,9 @@ select {
 
 .tude-group {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
 }
 
 .latitude,
@@ -102,12 +121,13 @@ select {
   justify-items: right;
 }
 
-.tude-group label {
+.tude-group div label {
   width: fit-content;
 }
 
 .tude-group div input {
   width: 90%;
+  margin: 0;
 }
 
 .getloc-container button {
