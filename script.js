@@ -1,7 +1,9 @@
 // Set tanggal dan jam otomatis saat halaman pertama kali diload
 window.onload = function ()
 {
-    setTanggal();  // Set hanya tanggal saat load
+    setTanggal();
+    hideRecheck();
+    showCheck();
 };
 
 // Fungsi untuk set tanggal otomatis
@@ -38,7 +40,7 @@ fetch('https://api.ipify.org?format=json')
 // Fungsi untuk mengecek apakah IP sudah ada di Tabel 2
 function checkUserIP(ip)
 {
-    fetch(`https://script.google.com/macros/s/AKfycbx4moZcry_dB7f1jdOmv7HwgKw5xp3jQt9PKJDkwIsiepTLC5dKKDgAb15bPBHi6XOGYw/exec?checkIP=${ip}`)
+    fetch(`https://script.google.com/macros/s/AKfycbwmfXBeZY515fIZRQCyGfcGycKRlorU5CiSsMw_yxTGYoFGE59s4bTm1ghCRnugmLIVvw/exec?checkIP=${ip}`)
         .then(response => response.json())
         .then(data =>
         {
@@ -60,31 +62,122 @@ function hideLoading()
 {
     document.getElementById('loading').style.display = 'none';
 }
-// Tambahkan loading saat klik "Cek Lokasi"
+
+function showRecheck()
+{
+    document.getElementById('reCheckLocationButton').style.display = 'inline-flex';
+}
+
+function hideRecheck()
+{
+    document.getElementById('reCheckLocationButton').style.display = 'none';
+}
+
+function showCheck()
+{
+    document.getElementById('getLocationButton').style.display = 'flex';
+}
+
+function hideCheck()
+{
+    document.getElementById('getLocationButton').style.display = 'none';
+}
+
 document.getElementById('getLocationButton').addEventListener('click',function ()
 {
+    getLocationAndDecode();
+});
+
+document.getElementById('reCheckLocationButton').addEventListener('click',function ()
+{
+    getLocationAndDecode();
+});
+
+
+
+// Fungsi untuk mendapatkan lokasi & decode alamat
+async function getLocationAndDecode()
+{
     showLoading();
+
     if (navigator.geolocation)
     {
         navigator.geolocation.getCurrentPosition(
-            function (position)
+            async function (position)
             {
-                document.getElementById('latitude').value = position.coords.latitude;
-                document.getElementById('longitude').value = position.coords.longitude;
-                hideLoading();
+                let latitude = position.coords.latitude;
+                let longitude = position.coords.longitude;
+
+                document.getElementById('latitude').value = latitude;
+                document.getElementById('longitude').value = longitude;
+
+                // Ambil alamat dari Nominatim API
+                let alamat = await getAddressFromCoordinates(latitude,longitude);
+
+                if (alamat !== "Lokasi tidak ditemukan" && alamat !== "Error saat mengambil lokasi")
+                {
+                    hideLoading();
+                    hideCheck();
+                    showRecheck();
+                    document.getElementById('lokasi').value = alamat;
+                } else
+                {
+                    hideLoading();
+                    alert("Gagal mendapatkan alamat. Coba ulangi.");
+                }
             },
             function ()
             {
-                alert('Gagal mendapatkan lokasi.');
                 hideLoading();
+                alert('Gagal mendapatkan lokasi.');
             }
         );
     } else
     {
-        alert('Browser Anda tidak mendukung geolokasi.');
         hideLoading();
+        alert('Browser Anda tidak mendukung geolokasi.');
+    }
+}
+
+// Fungsi untuk mengambil alamat dari Nominatim API
+async function getAddressFromCoordinates(latitude,longitude)
+{
+    showLoading();
+
+    try
+    {
+        let url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+        let response = await fetch(url);
+        let json = await response.json();
+
+        if (json && json.display_name)
+        {
+            hideLoading();
+            return json.display_name;
+        } else
+        {
+            hideLoading();
+            return "Lokasi tidak ditemukan";
+        }
+    } catch (e)
+    {
+        console.error("Gagal mendapatkan lokasi:",e);
+        hideLoading();
+        return "Error saat mengambil lokasi";
+    }
+}
+
+// Cegah submit jika lokasi belum berhasil didecode
+document.getElementById('absenForm').addEventListener('submit',function (e)
+{
+    let alamat = document.getElementById('alamat').value;
+    if (alamat === "" || alamat === "Lokasi tidak ditemukan" || alamat === "Error saat mengambil lokasi")
+    {
+        alert("Silakan cek lokasi terlebih dahulu sebelum submit.");
+        e.preventDefault();
     }
 });
+
 
 // Tambahkan loading saat klik "Submit"
 document.getElementById('absenForm').addEventListener('submit',function (e)
@@ -96,7 +189,7 @@ document.getElementById('absenForm').addEventListener('submit',function (e)
     const formData = new FormData(this);
     formData.append('ip',userIP);
 
-    fetch('https://script.google.com/macros/s/AKfycbx4moZcry_dB7f1jdOmv7HwgKw5xp3jQt9PKJDkwIsiepTLC5dKKDgAb15bPBHi6XOGYw/exec',{
+    fetch('https://script.google.com/macros/s/AKfycbwmfXBeZY515fIZRQCyGfcGycKRlorU5CiSsMw_yxTGYoFGE59s4bTm1ghCRnugmLIVvw/exec',{
         method: 'POST',
         body: formData,
     })
@@ -115,3 +208,5 @@ document.getElementById('absenForm').addEventListener('submit',function (e)
             console.error(error);
         });
 });
+
+
