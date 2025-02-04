@@ -86,16 +86,44 @@ select {
 
 .tude-group {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+  margin-bottom: 25px;
 }
 
 .latitude,
 .longitude {
-  width: 80%;
+  width: auto;
+  margin-right: 5%;
+  background-color: aqua;
 }
 
-.tude-group input {
-  width: 85%;
+.getloc-container {
+  background-color: #4CAF50;
+  width: fit-content;
+  justify-items: right;
+}
+
+.tude-group label {
+  width: fit-content;
+}
+
+.tude-group div input {
+  width: 90%;
+}
+
+.getloc-container button {
+  background-color: yellow;
+  color: black;
+  margin-top: 33px;
+  font-weight: bold;
+  width: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
 }
 
 button {
@@ -118,26 +146,25 @@ button:disabled {
   cursor: not-allowed;
 }
 
-#getLocationButton {
-  background-color: yellow;
-  color: black;
-  margin-top: 33px;
-  width: 100%;
-  font-weight: bold;
-}
-
 #submitButton {
   background-color: #4CAF50;
   color: white;
   font-size: 18px;
   font-weight: bold;
   width: 60%;
-  margin: 0 20%;
+  margin: 5px 20% 0 20%;
 }
 
 button:active {
-  transform: translate(-2px, 2px); /* Efek ditekan ke kiri bawah */
-  box-shadow: 0px 0px 0 rgba(0, 0, 0, 0.3); /* Hilangkan shadow saat ditekan */
+  transform: translate(-1px, 1px);
+  /* Efek ditekan ke kiri bawah */
+  box-shadow: 0px 0px 0 rgba(0, 0, 0, 0.3);
+  /* Hilangkan shadow saat ditekan */
+}
+
+.lokasi-group textarea{
+  width: 100%;
+  border: 1px solid #ddd;
 }
 
 .loading-overlay {
@@ -152,6 +179,7 @@ button:active {
   align-items: center;
   color: white;
   font-size: 20px;
-  z-index: 9999; /* Pastikan loading berada di atas */
+  z-index: 9999;
+  /* Pastikan loading berada di atas */
   display: none;
 }
