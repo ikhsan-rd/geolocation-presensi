@@ -87,8 +87,6 @@ select {
 .tude-group {
   display: flex;
   justify-content: space-evenly;
-  border: 1px solid #ddd;
-  border-radius: 4px;
   width: 100%;
   margin-bottom: 25px;
 }
