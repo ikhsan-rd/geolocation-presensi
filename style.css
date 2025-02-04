@@ -97,11 +97,9 @@ select {
 .longitude {
   width: auto;
   margin-right: 5%;
-  background-color: aqua;
 }
 
 .getloc-container {
-  background-color: #4CAF50;
   width: fit-content;
   justify-items: right;
 }
