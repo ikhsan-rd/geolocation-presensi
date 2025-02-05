@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form Absensi</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
 </head>
 
 <body>
@@ -14,11 +15,45 @@
             <h1>Form Presensi</h1>
         </div>
 
+        <label for="id">ID</label>
+
+        <div class="id-check">
+            <input type="text" id="id" name="id" required>
+            <button type="button" id="checkButton">Check</button>
+        </div>
+
         <label for="nama">Nama</label>
-        <input type="text" id="nama" name="nama" required>
+        <input type="text" id="nama" name="nama" required readonly>
 
         <label for="departemen">Departemen:</label>
-        <input type="text" id="departemen" name="departemen" required>
+        <input type="text" id="departemen" name="departemen" required readonly>
+
+        <div class="tanggal-jam-group">
+            <div class="tanggal-group">
+                <label for="tanggal">Tanggal</label>
+                <input type="date" id="tanggal" name="tanggal" readonly>
+            </div>
+            <div class="jam-group">
+                <label for="jam">Jam</label>
+                <input type="text" placeholder="Otomatis" id="jam" name="jam" readonly>
+            </div>
+        </div>
+
+        <div class="tude-group">
+            <div class="latitude">
+                <label for="latitude">Latitude</label>
+                <input type="text" id="latitude" name="latitude" readonly>
+            </div>
+            <div class="longitude">
+                <label for="longitude">Longitude</label>
+                <input type="text" id="longitude" name="longitude" readonly>
+            </div>
+        </div>
+
+        <div class="lokasi-group">
+            <label for="lokasi">Lokasi</label>
+            <textarea type="text" id="lokasi" name="lokasi" rows="3" required readonly></textarea>
+        </div>
 
         <label>Presensi</label>
         <div class="radio-button-group">
@@ -40,40 +75,10 @@
             </div>
         </div>
 
-        <div class="tanggal-jam-group">
-            <div class="tanggal-group">
-                <label for="tanggal">Tanggal</label>
-                <input type="text" id="tanggal" name="tanggal" readonly>
-            </div>
-            <div class="jam-group">
-                <label for="jam">Jam</label>
-                <input type="text" placeholder="Otomatis" id="jam" name="jam" readonly>
-            </div>
-        </div>
-
-        <div class="tude-group">
-            <div class="latitude">
-                <label for="latitude">Latitude</label>
-                <input type="text" id="latitude" name="latitude" readonly>
-            </div>
-            <div class="longitude">
-                <label for="longitude">Longitude</label>
-                <input type="text" id="longitude" name="longitude" readonly>
-            </div>
-            <div class="getloc-container">
-                <button type="button" id="getLocationButton">Check</button>
-                <button type="button" id="reCheckLocationButton">Re-Check</button>
-            </div>
-        </div>
-
-        <div class="lokasi-group">
-            <label for="lokasi">Lokasi</label>
-            <textarea type="text" id="lokasi" name="lokasi" rows="3" readonly></textarea>
-        </div>
-
         <hr class="form-divider">
 
         <div class="submit-container">
+            <button type="button" id="reCheckLocationButton">Re-Check Location</button>
             <button type="submit" id="submitButton">Submit</button>
         </div>
     </form>
