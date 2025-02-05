@@ -1,0 +1,240 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+.background-header {
+  position: relative;
+  text-align: center;
+  margin-bottom: 20px;
+  width: 100%;
+  height: 200px;
+  background-image: url("bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+}
+
+.background-header h1 {
+  position: relative;
+  color: white;
+  font-size: 40px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  margin: 0;
+}
+
+form {
+  max-width: 500px;
+  margin: auto;
+  padding: 2%;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+label {
+  display: block;
+  margin: 10px 0 5px;
+}
+
+input,
+select {
+  width: 96%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: Arial, sans-serif;
+}
+
+button {
+  border: none;
+  padding: 9px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  position: relative;
+  font-weight: bold;
+  z-index: 2;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  justify-content: center;
+  margin: 0 3px 0 3px;
+}
+
+.id-check {
+  display: flex;
+  justify-content: space-between;
+  width: 99.6%;
+  margin-bottom: 15px;
+}
+.id-check input {
+  margin: 0;
+}
+.id-check #checkButton {
+  margin-left: 2.4%;
+  font-size: 14px;
+  background-color: #0084ff;
+  color: white;
+}
+.id-check #checkButton:hover {
+  transform: translate(5px, -5px);
+  box-shadow: -5px 5px 0 rgba(0, 0, 0, 0.3);
+}
+.id-check #checkButton:active {
+  transform: translate(-1px, 1px);
+  box-shadow: 0px 0px 0 rgba(0, 0, 0, 0.3);
+}
+
+.radio-button-group {
+  display: flex;
+  justify-content: space-around;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+  width: 96%;
+  margin-bottom: 15px;
+}
+.radio-button-group .radio-group {
+  display: flex;
+  text-align: center;
+  height: -moz-fit-content;
+  height: fit-content;
+  max-height: 15px;
+}
+.radio-button-group .radio-group label {
+  margin: 0 10px 0 5px;
+  font-size: 14px;
+}
+.radio-button-group .radio-group input {
+  margin: 0;
+}
+
+.tanggal-jam-group {
+  display: flex;
+  justify-content: space-between;
+  width: 99.6%;
+  margin-bottom: 15px;
+}
+.tanggal-jam-group div {
+  width: 100%;
+  padding: 0;
+}
+.tanggal-jam-group div label {
+  width: -moz-fit-content;
+  width: fit-content;
+}
+.tanggal-jam-group div input {
+  width: 92.3%;
+  margin: 0;
+}
+.tanggal-jam-group .tanggal-group {
+  margin: 0 1.2% 0 0;
+}
+.tanggal-jam-group .jam-group {
+  margin: 0 0 0 1.2%;
+}
+
+.tude-group {
+  display: none;
+  justify-content: space-between;
+  width: 99.6%;
+  margin-bottom: 25px;
+}
+.tude-group div {
+  width: 100%;
+  padding: 0;
+}
+.tude-group div label {
+  width: -moz-fit-content;
+  width: fit-content;
+}
+.tude-group div input {
+  width: 92.3%;
+  margin: 0;
+}
+.tude-group .latitude {
+  margin: 0 1.2% 0 0;
+}
+.tude-group .longitude {
+  margin: 0 0 0 1.2%;
+}
+
+.lokasi-group {
+  width: 100%;
+  margin: 10px 0 15px 0;
+}
+.lokasi-group textarea {
+  width: 96%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+  font-family: Arial, sans-serif;
+}
+
+.submit-container {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 15px 0 0 0;
+}
+.submit-container #submitButton {
+  background-color: #4CAF50;
+  color: white;
+}
+.submit-container #submitButton:hover {
+  transform: translate(5px, -5px);
+  box-shadow: -5px 5px 0 rgba(0, 0, 0, 0.3);
+}
+.submit-container #submitButton:active {
+  transform: translate(-1px, 1px);
+  box-shadow: 0px 0px 0 rgba(0, 0, 0, 0.3);
+}
+.submit-container #submitButton:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: none;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+.submit-container #reCheckLocationButton {
+  background-color: gold;
+  color: black;
+}
+.submit-container #reCheckLocationButton:hover {
+  transform: translate(-5px, -5px);
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.3);
+}
+.submit-container #reCheckLocationButton:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0px 0px 0 rgba(0, 0, 0, 0.3);
+}
+.submit-container button {
+  width: 45%;
+  font-size: 14px;
+}
+.submit-container button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 20px;
+  z-index: 9999;
+  /* Pastikan loading berada di atas */
+  display: none;
+}/*# sourceMappingURL=style.css.map */
