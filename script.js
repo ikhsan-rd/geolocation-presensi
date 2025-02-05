@@ -1,101 +1,133 @@
-// Set tanggal dan jam otomatis saat halaman pertama kali diload
 window.onload = function ()
 {
     setTanggal();
     hideRecheck();
-    showCheck();
+    validateForm();
+    console.log("jalan");
 };
+//event Listener
+document.getElementById('id').addEventListener('input', validateForm);
+document.getElementById('nama').addEventListener('input', validateForm);
+document.getElementById('departemen').addEventListener('input', validateForm);
+document.getElementById('lokasi').addEventListener('input', validateForm);
+document.querySelectorAll('input[name="presensi"]').forEach((radio) => {
+    radio.addEventListener('change', validateForm);
+});
 
-// Fungsi untuk set tanggal otomatis
+// Set tanggal otomatis
 function setTanggal()
 {
     const now = new Date();
-    const tanggal = now.toISOString().split('T')[0]; // Tanggal dalam format YYYY-MM-DD
-    document.getElementById('tanggal').value = tanggal;
-    document.getElementById('jam').placeholder = "Otomatis"; // Placeholder untuk jam
+    document.getElementById('tanggal').value = now.toISOString().split('T')[0];
 }
 
-// Fungsi untuk set tanggal dan jam saat submit
-function setTanggalJam()
+// Mengambil IP Address
+async function getIPAddress()
 {
-    const now = new Date();
-    const tanggal = now.toISOString().split('T')[0]; // Tanggal dalam format YYYY-MM-DD
-    const jam = now.toTimeString().split(' ')[0].substring(0,5); // Jam dalam format HH:MM
-
-    document.getElementById('tanggal').value = tanggal;
-    document.getElementById('jam').value = jam;
-}
-
-// Ambil IP Address
-let userIP = '';
-fetch('https://api.ipify.org?format=json')
-    .then(response => response.json())
-    .then(data =>
+    try
     {
-        userIP = data.ip;
-        checkUserIP(userIP); // Cek apakah IP sudah ada di tabel 2
-    })
-    .catch(error => console.error('Gagal mendapatkan IP:',error));
-
-// Fungsi untuk mengecek apakah IP sudah ada di Tabel 2
-function checkUserIP(ip)
-{
-    fetch(`https://script.google.com/macros/s/AKfycbwmfXBeZY515fIZRQCyGfcGycKRlorU5CiSsMw_yxTGYoFGE59s4bTm1ghCRnugmLIVvw/exec?checkIP=${ip}`)
-        .then(response => response.json())
-        .then(data =>
-        {
-            if (data.exists)
-            {
-                document.getElementById('nama').value = data.nama; // Auto-fill nama dari Tabel 2 jika IP sudah terdaftar
-                document.getElementById('nama').readOnly = true; // Kunci input nama untuk mencegah perubahan
-            }
-        })
-        .catch(error => console.error('Gagal mengecek IP:',error));
+        let response = await fetch('https://api.ipify.org?format=json');
+        let data = await response.json();
+        return data.ip;
+    } catch (error)
+    {
+        console.error("Gagal mendapatkan IP:",error);
+        return "Unknown";
+    }
 }
 
-function showLoading()
+// Mengambil UUID, jika tidak ada maka buat yang baru
+function getUUID()
 {
-    document.getElementById('loading').style.display = 'flex';
+    let storedUUID = localStorage.getItem('deviceUUID');
+    if (!storedUUID)
+    {
+        storedUUID = crypto.randomUUID();
+        localStorage.setItem('deviceUUID',storedUUID);
+    }
+    return storedUUID;
 }
 
-function hideLoading()
+// Mengambil fingerprint
+async function getFingerprint()
 {
-    document.getElementById('loading').style.display = 'none';
+    try
+    {
+        const fpPromise = FingerprintJS.load();
+        const fp = await fpPromise;
+        const result = await fp.get();
+        return result.visitorId;
+    } catch (error)
+    {
+        console.error("Gagal mendapatkan fingerprint:",error);
+        return "Unknown";
+    }
 }
 
-function showRecheck()
+// Mengambil data user dari Google Apps Script
+async function fetchUserData(id)
 {
-    document.getElementById('reCheckLocationButton').style.display = 'inline-flex';
+    try
+    {
+        let response = await fetch(`https://script.google.com/macros/s/AKfycbwCPCl00EMbtsZwOaWuMj7WoovpI1r-gExg10AWXCwYhBMKp6nzwyKis2S9End-8FD8eA/exec?getUser=${id}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        let data = await response.json();
+        return data.exists ? { nama: data.nama,departemen: data.departemen } : null;
+    } catch (error)
+    {
+        console.error("Gagal mengambil data pengguna:",error);
+        return null;
+    }
 }
 
-function hideRecheck()
+// Event handler untuk tombol "Check"
+document.getElementById('checkButton').addEventListener('click',async function ()
 {
-    document.getElementById('reCheckLocationButton').style.display = 'none';
-}
+    let userId = document.getElementById('id').value.trim();
+    if (!userId)
+    {
+        alert("Masukkan ID terlebih dahulu!");
+        return;
+    }
+    showLoading();
+    let userData = await fetchUserData(userId);
+    hideLoading();
+    if (!userData)
+    {
+        alert("ID tidak ditemukan dalam database.");
+        return;
+    }
+    document.getElementById('nama').value = userData.nama;
+    document.getElementById('departemen').value = userData.departemen;
 
-function showCheck()
-{
-    document.getElementById('getLocationButton').style.display = 'flex';
-}
-
-function hideCheck()
-{
-    document.getElementById('getLocationButton').style.display = 'none';
-}
-
-document.getElementById('getLocationButton').addEventListener('click',function ()
-{
     getLocationAndDecode();
 });
 
+// Validasi form sebelum submit
+function validateForm()
+{
+    const id = document.getElementById('id').value.trim();
+    const nama = document.getElementById('nama').value.trim();
+    const departemen = document.getElementById('departemen').value.trim();
+    const lokasi = document.getElementById('lokasi').value.trim();
+    const presensi = document.querySelector('input[name="presensi"]:checked');
+
+    if (id && nama && departemen && lokasi && presensi)
+    {
+        enableSubmit();
+    } else
+    {
+        disableSubmit();
+    }
+}
+
+// Event untuk Tombol "Re-Check Location"
 document.getElementById('reCheckLocationButton').addEventListener('click',function ()
 {
-    getLocationAndDecode();
+    getLocationAndDecode(); // Re-cek lokasi tanpa mengubah Nama & Departemen
 });
 
-
-
-// Fungsi untuk mendapatkan lokasi & decode alamat
+// Mengambil lokasi & decode alamat
 async function getLocationAndDecode()
 {
     showLoading();
@@ -113,23 +145,21 @@ async function getLocationAndDecode()
 
                 // Ambil alamat dari Nominatim API
                 let alamat = await getAddressFromCoordinates(latitude,longitude);
-
-                if (alamat !== "Lokasi tidak ditemukan" && alamat !== "Error saat mengambil lokasi")
+                hideLoading();
+                if (alamat)
                 {
-                    hideLoading();
-                    hideCheck();
                     showRecheck();
                     document.getElementById('lokasi').value = alamat;
                 } else
                 {
-                    hideLoading();
                     alert("Gagal mendapatkan alamat. Coba ulangi.");
                 }
             },
-            function ()
+            function (error)
             {
                 hideLoading();
-                alert('Gagal mendapatkan lokasi.');
+                console.error("Gagal mendapatkan lokasi:",error.message);
+                alert(`Gagal mendapatkan lokasi: ${error.message}`);
             }
         );
     } else
@@ -139,30 +169,17 @@ async function getLocationAndDecode()
     }
 }
 
-// Fungsi untuk mengambil alamat dari Nominatim API
+// Mengambil alamat dari koordinat
 async function getAddressFromCoordinates(latitude,longitude)
 {
-    showLoading();
-
     try
     {
-        let url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
-        let response = await fetch(url);
-        let json = await response.json();
-
-        if (json && json.display_name)
-        {
-            hideLoading();
-            return json.display_name;
-        } else
-        {
-            hideLoading();
-            return "Lokasi tidak ditemukan";
-        }
-    } catch (e)
+        let response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+        let data = await response.json();
+        return data.display_name || "Lokasi tidak ditemukan";
+    } catch (error)
     {
-        console.error("Gagal mendapatkan lokasi:",e);
-        hideLoading();
+        console.error("Gagal mendapatkan lokasi:",error);
         return "Error saat mengambil lokasi";
     }
 }
@@ -170,43 +187,63 @@ async function getAddressFromCoordinates(latitude,longitude)
 // Cegah submit jika lokasi belum berhasil didecode
 document.getElementById('absenForm').addEventListener('submit',function (e)
 {
-    let alamat = document.getElementById('alamat').value;
-    if (alamat === "" || alamat === "Lokasi tidak ditemukan" || alamat === "Error saat mengambil lokasi")
+    let alamat = document.getElementById('lokasi').value.trim();
+    if (!alamat || alamat === "Lokasi tidak ditemukan" || alamat === "Error saat mengambil lokasi")
     {
         alert("Silakan cek lokasi terlebih dahulu sebelum submit.");
         e.preventDefault();
     }
 });
 
-
-// Tambahkan loading saat klik "Submit"
-document.getElementById('absenForm').addEventListener('submit',function (e)
+// Submit form
+document.getElementById('absenForm').addEventListener('submit',async function (e)
 {
     e.preventDefault();
     showLoading();
 
-    setTanggalJam();
-    const formData = new FormData(this);
-    formData.append('ip',userIP);
+    const uuid = getUUID();
+    const fingerprint = await getFingerprint();
+    const ip = await getIPAddress();
+    const nama = document.getElementById('nama').value;
+    const id = document.getElementById('id').value;
+    const departemen = document.getElementById('departemen').value;
+    const tanggal = document.getElementById('tanggal').value;
+    const jam = new Date().toLocaleTimeString('id-ID', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' 
+    });    
+    const lokasi = document.getElementById('lokasi').value;
+    const latitude = document.getElementById('latitude').value;
+    const longitude = document.getElementById('longitude').value;
+    const presensi = document.querySelector('input[name="presensi"]:checked').value;
 
-    fetch('https://script.google.com/macros/s/AKfycbwmfXBeZY515fIZRQCyGfcGycKRlorU5CiSsMw_yxTGYoFGE59s4bTm1ghCRnugmLIVvw/exec',{
-        method: 'POST',
-        body: formData,
-    })
-        .then(response => response.json())
-        .then(data =>
-        {
-            alert(data.message);
-            this.reset();
-            setTanggal();
-            hideLoading();
-        })
-        .catch(error =>
-        {
-            alert('Gagal mengirim data.');
-            hideLoading();
-            console.error(error);
+    let formData = new URLSearchParams({
+        id,nama,departemen,presensi,tanggal,jam,lokasi,latitude,longitude,uuid,fingerprint,ip
+    });
+
+    try
+    {
+        let response = await fetch('https://script.google.com/macros/s/AKfycbwCPCl00EMbtsZwOaWuMj7WoovpI1r-gExg10AWXCwYhBMKp6nzwyKis2S9End-8FD8eA/exec',{
+            method: 'POST',
+            body: formData
         });
+        let data = await response.json();
+        alert(data.message);
+    } catch (error)
+    {
+        console.error('Gagal mengirim data:',error);
+        alert("Terjadi kesalahan saat mengirim data.");
+    }
+
+    hideLoading();
 });
 
+// Fungsi tambahan
+function showLoading() { document.getElementById('loading').style.display = 'flex'; }
+function hideLoading() { document.getElementById('loading').style.display = 'none'; }
+function showRecheck() { document.getElementById('reCheckLocationButton').style.display = 'flex'; }
+function hideRecheck() { document.getElementById('reCheckLocationButton').style.display = 'none'; }
+function enableSubmit() { document.getElementById('submitButton').disabled = false; }
+function disableSubmit() { document.getElementById('submitButton').disabled = true; }
 
