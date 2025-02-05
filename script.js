@@ -69,7 +69,7 @@ async function fetchUserData(id)
 {
     try
     {
-        let response = await fetch(`https://script.google.com/macros/s/AKfycbzxVCwJ9Y5LAfQb0ZpnRYZz7gmK0nQVclTgPnVewpxORyi-48_4c5sblz96Vc4OtMyMcQ/exec?getUser=${id}`);
+        let response = await fetch(`https://script.google.com/macros/s/AKfycbxij-FGsrTeaFpC6bDDbE-02pEWdhgpVMWwLe8LACYvNgHF8IEfd-P106SYvgDbShkyig/exec?getUser=${id}`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         let data = await response.json();
         return data.exists ? { nama: data.nama,departemen: data.departemen } : null;
@@ -224,7 +224,7 @@ document.getElementById('absenForm').addEventListener('submit',async function (e
 
     try
     {
-        let response = await fetch('https://script.google.com/macros/s/AKfycbzxVCwJ9Y5LAfQb0ZpnRYZz7gmK0nQVclTgPnVewpxORyi-48_4c5sblz96Vc4OtMyMcQ/exec',{
+        let response = await fetch('https://script.google.com/macros/s/AKfycbxij-FGsrTeaFpC6bDDbE-02pEWdhgpVMWwLe8LACYvNgHF8IEfd-P106SYvgDbShkyig/exec',{
             method: 'POST',
             body: formData,
             mode: 'no-cors'
