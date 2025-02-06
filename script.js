@@ -70,7 +70,7 @@ async function fetchUserData(id)
 {
     try
     {
-        let response = await fetch(`https://script.google.com/macros/s/AKfycbxihGspnIFwqTEOT4QA8LRSm_aeQa0FdFA4DGvEpuoDSCIDawztCqABY_kmPLWPNC66Pw/exec?getUser=${id}`);
+        let response = await fetch(`https://script.google.com/macros/s/AKfycbx84BokViFp422GX8j4KrumhjUwoWDPn1XSwz0852yHgb2ntfJIb0O0HjAWgAZ7j4PsXw/exec?getUser=${id}`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         let data = await response.json();
         return data.exists ? { nama: data.nama,departemen: data.departemen } : null;
@@ -196,12 +196,13 @@ document.getElementById('absenForm').addEventListener('submit',function (e)
     }
 });
 
-// Submit form
+// Tangkap event submit dari form
 document.getElementById('absenForm').addEventListener('submit',async function (e)
 {
-    e.preventDefault();
-    showLoading();
+    e.preventDefault(); // Mencegah reload halaman saat submit
+    showLoading(); // Menampilkan indikator loading
 
+    // Ambil data dari form
     const uuid = getUUID();
     const fingerprint = await getFingerprint();
     const ip = await getIPAddress();
@@ -217,29 +218,48 @@ document.getElementById('absenForm').addEventListener('submit',async function (e
     const lokasi = document.getElementById('lokasi').value;
     const latitude = document.getElementById('latitude').value;
     const longitude = document.getElementById('longitude').value;
-    const presensi = document.querySelector('input[name="presensi"]:checked').value;
+    const presensi = document.querySelector('input[name="presensi"]:checked')?.value;
 
-    let formData = new URLSearchParams({
+    // Validasi input sebelum dikirim
+    if (!id || !nama || !departemen || !tanggal || !jam || !lokasi || !latitude || !longitude || !presensi)
+    {
+        alert("Semua field harus diisi!");
+        hideLoading();
+        return;
+    }
+
+    // Format data untuk dikirim ke Google Apps Script
+    let formData = {
         id,nama,departemen,presensi,tanggal,jam,lokasi,latitude,longitude,uuid,fingerprint,ip
-    });
+    };
 
     try
     {
-        let response = await fetch('https://script.google.com/macros/s/AKfycbxihGspnIFwqTEOT4QA8LRSm_aeQa0FdFA4DGvEpuoDSCIDawztCqABY_kmPLWPNC66Pw/exec',{
+        // Kirim data menggunakan fetch ke Google Apps Script
+        let response = await fetch('https://script.google.com/macros/s/AKfycbx84BokViFp422GX8j4KrumhjUwoWDPn1XSwz0852yHgb2ntfJIb0O0HjAWgAZ7j4PsXw/exec',{
             method: 'POST',
-            body: formData,
+            mode: 'cors',  // Mengaktifkan CORS
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)  // Kirim dalam format JSON
         });
-        let text = await response.text();
-        console.log(text);
-        let data = await response.json();
-        alert(data.message);
+
+        if (!response.ok)
+        {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        let data = await response.json(); // Ambil response dari server
+        alert(data.message); // Tampilkan pesan dari server
+
     } catch (error)
     {
         console.error('Gagal mengirim data:',error);
-        alert("Terjadi kesalahan saat mengirim data.");
+        alert("Terjadi kesalahan saat mengirim data: " + error.message);
     }
 
-    hideLoading();
+    hideLoading(); // Sembunyikan indikator loading
 });
 
 // Fungsi tambahan
