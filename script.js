@@ -70,7 +70,7 @@ async function fetchUserData(id)
 {
     try
     {
-        let response = await fetch(`https://script.google.com/macros/s/AKfycbx84BokViFp422GX8j4KrumhjUwoWDPn1XSwz0852yHgb2ntfJIb0O0HjAWgAZ7j4PsXw/exec?getUser=${id}`);
+        let response = await fetch(`https://script.google.com/macros/s/AKfycbwBLv-udoSrYE1m9FPpPJ8jgJpO4TVwf5WvRCrg08oOvEBN_DczBshnPDfB6-aEnCuv-Q/exec?getUser=${id}`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         let data = await response.json();
         return data.exists ? { nama: data.nama,departemen: data.departemen } : null;
@@ -202,53 +202,62 @@ document.getElementById('absenForm').addEventListener('submit',async function (e
     e.preventDefault(); // Mencegah reload halaman saat submit
     showLoading(); // Menampilkan indikator loading
 
-    // Ambil data dari form
-    const uuid = getUUID();
-    const fingerprint = await getFingerprint();
-    const ip = await getIPAddress();
-    const nama = document.getElementById('nama').value;
-    const id = document.getElementById('id').value;
-    const departemen = document.getElementById('departemen').value;
-    const tanggal = document.getElementById('tanggal').value;
-    const jam = new Date().toLocaleTimeString('id-ID',{
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    });
-    const lokasi = document.getElementById('lokasi').value;
-    const latitude = document.getElementById('latitude').value;
-    const longitude = document.getElementById('longitude').value;
-    const presensi = document.querySelector('input[name="presensi"]:checked')?.value;
-
-    // Validasi input sebelum dikirim
-    if (!id || !nama || !departemen || !tanggal || !jam || !lokasi || !latitude || !longitude || !presensi)
-    {
-        alert("Semua field harus diisi!");
-        hideLoading();
-        return;
-    }
-
-    // Format data untuk dikirim ke Google Apps Script
-    let formData = {
-        id,nama,departemen,presensi,tanggal,jam,lokasi,latitude,longitude,uuid,fingerprint,ip
-    };
-
     try
     {
-        // Kirim data menggunakan fetch ke Google Apps Script
-        let response = await fetch('https://script.google.com/macros/s/AKfycbx84BokViFp422GX8j4KrumhjUwoWDPn1XSwz0852yHgb2ntfJIb0O0HjAWgAZ7j4PsXw/exec',{
-            method: 'POST',
-            mode: 'cors',  // Mengaktifkan CORS
+        // Ambil data dari form dengan trim untuk menghindari spasi berlebih
+        const id = document.getElementById('id').value.trim();
+        const nama = document.getElementById('nama').value.trim();
+        const departemen = document.getElementById('departemen').value.trim();
+        const tanggal = document.getElementById('tanggal').value.trim();
+        const lokasi = document.getElementById('lokasi').value.trim();
+        const latitude = document.getElementById('latitude').value.trim();
+        const longitude = document.getElementById('longitude').value.trim();
+        const presensi = document.querySelector('input[name="presensi"]:checked')?.value?.trim();
+        const jam = new Date().toLocaleTimeString('id-ID',{
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+
+        // Pastikan mendapatkan UUID, Fingerprint, dan IP tanpa error
+        const uuid = await getUUID();
+        const fingerprint = await getFingerprint();
+        const ip = await getIPAddress();
+
+        // Validasi input sebelum dikirim
+        if (!id || !nama || !departemen || !tanggal || !jam || !lokasi || !latitude || !longitude || !presensi || !uuid || !fingerprint || !ip)
+        {
+            alert("Semua field harus diisi!");
+            hideLoading();
+            return;
+        }
+
+        // Format data untuk dikirim ke Google Apps Script
+        let formData = {
+            id,nama,departemen,presensi,tanggal,jam,lokasi,latitude,longitude,uuid,fingerprint,ip
+        };
+
+        // Kirim data ke Google Apps Script
+        let response = await fetch("https://script.google.com/macros/s/AAKfycbwBLv-udoSrYE1m9FPpPJ8jgJpO4TVwf5WvRCrg08oOvEBN_DczBshnPDfB6-aEnCuv-Q/exec",{
+            method: "POST",
+            mode: "cors",
+            credentials: "omit",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(formData)  // Kirim dalam format JSON
-        });
-
-        if (!response.ok)
-        {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+            body: JSON.stringify(formData)
+        })
+            .then(response =>
+            {
+                if (!response.ok) throw new Error("Server error: " + response.status);
+                return response.json();
+            })
+            .then(data => alert(data.message))
+            .catch(error =>
+            {
+                console.error("Gagal mengirim data:",error);
+                alert("Terjadi kesalahan: " + error.message);
+            });
 
         let data = await response.json(); // Ambil response dari server
         alert(data.message); // Tampilkan pesan dari server
@@ -261,6 +270,7 @@ document.getElementById('absenForm').addEventListener('submit',async function (e
 
     hideLoading(); // Sembunyikan indikator loading
 });
+
 
 // Fungsi tambahan
 function showLoading() { document.getElementById('loading').style.display = 'flex'; }
