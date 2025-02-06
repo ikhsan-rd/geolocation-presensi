@@ -6,12 +6,13 @@ window.onload = function ()
     console.log("jalan");
 };
 //event Listener
-document.getElementById('id').addEventListener('input', validateForm);
-document.getElementById('nama').addEventListener('input', validateForm);
-document.getElementById('departemen').addEventListener('input', validateForm);
-document.getElementById('lokasi').addEventListener('input', validateForm);
-document.querySelectorAll('input[name="presensi"]').forEach((radio) => {
-    radio.addEventListener('change', validateForm);
+document.getElementById('id').addEventListener('input',validateForm);
+document.getElementById('nama').addEventListener('input',validateForm);
+document.getElementById('departemen').addEventListener('input',validateForm);
+document.getElementById('lokasi').addEventListener('input',validateForm);
+document.querySelectorAll('input[name="presensi"]').forEach((radio) =>
+{
+    radio.addEventListener('change',validateForm);
 });
 
 // Set tanggal otomatis
@@ -69,7 +70,7 @@ async function fetchUserData(id)
 {
     try
     {
-        let response = await fetch(`https://script.google.com/macros/s/AKfycbxij-FGsrTeaFpC6bDDbE-02pEWdhgpVMWwLe8LACYvNgHF8IEfd-P106SYvgDbShkyig/exec?getUser=${id}`);
+        let response = await fetch(`https://script.google.com/macros/s/AKfycbxihGspnIFwqTEOT4QA8LRSm_aeQa0FdFA4DGvEpuoDSCIDawztCqABY_kmPLWPNC66Pw/exec?getUser=${id}`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         let data = await response.json();
         return data.exists ? { nama: data.nama,departemen: data.departemen } : null;
@@ -208,11 +209,11 @@ document.getElementById('absenForm').addEventListener('submit',async function (e
     const id = document.getElementById('id').value;
     const departemen = document.getElementById('departemen').value;
     const tanggal = document.getElementById('tanggal').value;
-    const jam = new Date().toLocaleTimeString('id-ID', { 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit' 
-    });    
+    const jam = new Date().toLocaleTimeString('id-ID',{
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
     const lokasi = document.getElementById('lokasi').value;
     const latitude = document.getElementById('latitude').value;
     const longitude = document.getElementById('longitude').value;
@@ -224,11 +225,12 @@ document.getElementById('absenForm').addEventListener('submit',async function (e
 
     try
     {
-        let response = await fetch('https://script.google.com/macros/s/AKfycbxij-FGsrTeaFpC6bDDbE-02pEWdhgpVMWwLe8LACYvNgHF8IEfd-P106SYvgDbShkyig/exec',{
+        let response = await fetch('https://script.google.com/macros/s/AKfycbxihGspnIFwqTEOT4QA8LRSm_aeQa0FdFA4DGvEpuoDSCIDawztCqABY_kmPLWPNC66Pw/exec',{
             method: 'POST',
             body: formData,
-            mode: 'no-cors'
         });
+        let text = await response.text();
+        console.log(text);
         let data = await response.json();
         alert(data.message);
     } catch (error)
