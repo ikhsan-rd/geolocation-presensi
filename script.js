@@ -244,6 +244,7 @@ document.getElementById('absenForm').addEventListener('submit',async function (e
 
     // Reset tombol setelah submit
     hideLoading();
+    setTanggal();
 });
 
 
