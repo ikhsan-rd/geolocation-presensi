@@ -70,7 +70,7 @@ async function fetchUserData(id)
 {
     try
     {
-        let response = await fetch(`https://script.google.com/macros/s/AKfycbwBLv-udoSrYE1m9FPpPJ8jgJpO4TVwf5WvRCrg08oOvEBN_DczBshnPDfB6-aEnCuv-Q/exec?getUser=${id}`);
+        let response = await fetch(`https://script.google.com/macros/s/AKfycbySE32ZMsT2Zhxofjrmjjgod2GgDC9mriCVfGifQQZalMnN15057Bq4_hGbpzN0onl66A/exec?getUser=${id}`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         let data = await response.json();
         return data.exists ? { nama: data.nama,departemen: data.departemen } : null;
@@ -199,76 +199,51 @@ document.getElementById('absenForm').addEventListener('submit',function (e)
 // Tangkap event submit dari form
 document.getElementById('absenForm').addEventListener('submit',async function (e)
 {
-    e.preventDefault(); // Mencegah reload halaman saat submit
-    showLoading(); // Menampilkan indikator loading
+    e.preventDefault();
+    showLoading();
+
+    const formData = new FormData();
+    formData.append("id",document.getElementById('id').value.trim());
+    formData.append("nama",document.getElementById('nama').value.trim());
+    formData.append("departemen",document.getElementById('departemen').value.trim());
+    formData.append("tanggal",document.getElementById('tanggal').value.trim());
+    formData.append("lokasi",document.getElementById('lokasi').value.trim());
+    formData.append("latitude",document.getElementById('latitude').value.trim());
+    formData.append("longitude",document.getElementById('longitude').value.trim());
+    formData.append("presensi",document.querySelector('input[name="presensi"]:checked')?.value?.trim());
+    formData.append("jam",new Date().toLocaleTimeString('id-ID',{ hour: '2-digit',minute: '2-digit',second: '2-digit' }));
+    formData.append("uuid",await getUUID());
+    formData.append("fingerprint",await getFingerprint());
+    formData.append("ip",await getIPAddress());
 
     try
     {
-        // Ambil data dari form dengan trim untuk menghindari spasi berlebih
-        const id = document.getElementById('id').value.trim();
-        const nama = document.getElementById('nama').value.trim();
-        const departemen = document.getElementById('departemen').value.trim();
-        const tanggal = document.getElementById('tanggal').value.trim();
-        const lokasi = document.getElementById('lokasi').value.trim();
-        const latitude = document.getElementById('latitude').value.trim();
-        const longitude = document.getElementById('longitude').value.trim();
-        const presensi = document.querySelector('input[name="presensi"]:checked')?.value?.trim();
-        const jam = new Date().toLocaleTimeString('id-ID',{
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        });
-
-        // Pastikan mendapatkan UUID, Fingerprint, dan IP tanpa error
-        const uuid = await getUUID();
-        const fingerprint = await getFingerprint();
-        const ip = await getIPAddress();
-
-        // Validasi input sebelum dikirim
-        if (!id || !nama || !departemen || !tanggal || !jam || !lokasi || !latitude || !longitude || !presensi || !uuid || !fingerprint || !ip)
-        {
-            alert("Semua field harus diisi!");
-            hideLoading();
-            return;
-        }
-
-        // Format data untuk dikirim ke Google Apps Script
-        let formData = {
-            id,nama,departemen,presensi,tanggal,jam,lokasi,latitude,longitude,uuid,fingerprint,ip
-        };
-
-        // Kirim data ke Google Apps Script
-        let response = await fetch("https://script.google.com/macros/s/AAKfycbwBLv-udoSrYE1m9FPpPJ8jgJpO4TVwf5WvRCrg08oOvEBN_DczBshnPDfB6-aEnCuv-Q/exec",{
+        let response = await fetch("https://script.google.com/macros/s/AKfycbySE32ZMsT2Zhxofjrmjjgod2GgDC9mriCVfGifQQZalMnN15057Bq4_hGbpzN0onl66A/exec",{
             method: "POST",
-            mode: "cors",
-            credentials: "omit",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData)
-        })
-            .then(response =>
-            {
-                if (!response.ok) throw new Error("Server error: " + response.status);
-                return response.json();
-            })
-            .then(data => alert(data.message))
-            .catch(error =>
-            {
-                console.error("Gagal mengirim data:",error);
-                alert("Terjadi kesalahan: " + error.message);
-            });
+            body: formData
+        });
+        console.log(formData)
 
-        let data = await response.json(); // Ambil response dari server
-        alert(data.message); // Tampilkan pesan dari server
+        let result = await response.json();
 
+        // Cek apakah respons sukses
+        if (result.success)
+        {
+            alert("Absensi berhasil!");
+            document.getElementById('absenForm').reset();
+        } else
+        {
+            alert(result.message);
+        }
+        disableSubmit();
     } catch (error)
     {
-        console.error('Gagal mengirim data:',error);
-        alert("Terjadi kesalahan saat mengirim data: " + error.message);
+        console.error("Error:",error);
+        alert("Gagal mengirim data. Coba lagi nanti.");
     }
 
-    hideLoading(); // Sembunyikan indikator loading
+    // Reset tombol setelah submit
+    hideLoading();
 });
 
 
